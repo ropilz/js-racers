@@ -1,5 +1,17 @@
 import greenlet from 'https://cdn.pika.dev/greenlet/v1';
 
+
+class Runner {
+    #greenlet;
+    constructor (fn) {
+        this.#greenlet = greenlet(fn);
+    }
+
+    run (args) {
+        return this.#greenlet(args);
+    }
+}
+
 const ctx = document.getElementById('graph').getContext('2d');
 
 let objects = [
@@ -15,22 +27,30 @@ let objects = [
     {a: 9, b: 6, k: 7}
 ];
 
-const test = greenlet((jj) => {
+const test = new Runner((jj) => {
     function test (obj) {
         let a = obj.a + obj.b;
     }
+    const start = performance.now();
     for (let i = 0; i < 100000000; i += 1) {
         test(jj);
     }
+    const end = performance.now();
+    const total = end - start;
+    return total;
 });
 
-const test2 = greenlet((jj) => {
+const test2 = new Runner((jj) => {
     function test (obj) {
         let a = obj.a + obj.b;
     }
+    const start = performance.now();
     for (let i = 0; i < 100000000; i += 1) {
         test(jj);
     }
+    const end = performance.now();
+    const total = end - start;
+    return total;
 });
 
 
@@ -50,10 +70,7 @@ document.body.addEventListener('click', () => {
 async function runner1 () {
     let max = 0;
     while (true) {
-        const start = performance.now();
-        await test(objects[0]);
-        const end = performance.now();
-        const total = end - start;
+        const total = await test.run(objects[0]);
         results.push(total);
         if (total > max) {
             max = total;
@@ -64,10 +81,7 @@ async function runner1 () {
 async function runner2 () {
     let max = 0;
     while (true) {
-        const start = performance.now();
-        await test2(objects[iteration]);
-        const end = performance.now();
-        const total = end - start;
+        const total = await test2.run(objects[iteration]);
         results2.push(total);
         if (total > max) {
             max = total;
