@@ -2,29 +2,25 @@ import greenlet from 'https://cdn.pika.dev/greenlet/v1';
 
 const ctx = document.getElementById('graph').getContext('2d');
 
+let objects = [
+    {a: 0, b: 6},
+    {a: 1, b: 6, c: 7},
+    {a: 2, b: 6, d: 7},
+    {a: 3, b: 6, e: 7},
+    {a: 4, b: 6, f: 7},
+    {a: 5, b: 6, g: 7},
+    {a: 6, b: 6, h: 7},
+    {a: 7, b: 6, i: 7},
+    {a: 8, b: 6, j: 7},
+    {a: 9, b: 6, k: 7}
+];
+
 const test = greenlet((jj) => {
-function test (obj) {
-    let a = obj.a + obj.b;
-}
-    
-
-    let objects = [
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6},
-        {a: 5, b: 6}
-    ];
-    let idx = Math.min(jj, 9);
-    
-
+    function test (obj) {
+        let a = obj.a + obj.b;
+    }
     for (let i = 0; i < 100000000; i += 1) {
-        test(objects[idx]);
+        test(jj);
     }
 });
 
@@ -32,25 +28,12 @@ const test2 = greenlet((jj) => {
     function test (obj) {
         let a = obj.a + obj.b;
     }
-
-    let objects = [
-        {a: 0, b: 6},
-        {a: 1, b: 6, c: 7},
-        {a: 2, b: 6, d: 7},
-        {a: 3, b: 6, e: 7},
-        {a: 4, b: 6, f: 7},
-        {a: 5, b: 6, g: 7},
-        {a: 6, b: 6, h: 7},
-        {a: 7, b: 6, i: 7},
-        {a: 8, b: 6, j: 7},
-        {a: 9, b: 6, k: 7}
-    ];
-
-    let idx = Math.min(jj, 9);
     for (let i = 0; i < 100000000; i += 1) {
-        test(objects[idx]);
+        test(jj);
     }
 });
+
+
 let results2 = [];
 
 let results = [];
@@ -68,7 +51,7 @@ async function runner1 () {
     let max = 0;
     while (true) {
         const start = performance.now();
-        await test(iteration);
+        await test(objects[0]);
         const end = performance.now();
         const total = end - start;
         results.push(total);
@@ -82,7 +65,7 @@ async function runner2 () {
     let max = 0;
     while (true) {
         const start = performance.now();
-        await test2(iteration);
+        await test2(objects[iteration]);
         const end = performance.now();
         const total = end - start;
         results2.push(total);
