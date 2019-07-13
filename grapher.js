@@ -3,9 +3,14 @@ import {runnerPool} from './runner.js';
 // import highlight from 'https://cdn.pika.dev/h.js/v4';
 import {highlight} from 'https://cdn.pika.dev/reprism/v0.0';
 
+const MARKER_WIDTH = 5;
+const DENSITY = 4;
+const LINE_WIDTH = 8;
 class JsGrapher extends HTMLElement {
   width = 400;
   height = 200;
+  cwidth = this.width * DENSITY;
+  cheight = this.height * DENSITY;
   #max = 0;
   #min = 0;
   #ctx = null;
@@ -19,8 +24,9 @@ class JsGrapher extends HTMLElement {
   constructor () {
     super();
     const canvas = document.createElement('canvas');
-    canvas.width = this.width;
-    canvas.height = this.height;
+    canvas.width = this.cwidth + MARKER_WIDTH * DENSITY;
+    canvas.height = this.cheight + MARKER_WIDTH * DENSITY;
+    canvas.style.width = `${this.width + MARKER_WIDTH * DENSITY}px`;
     this.#ctx = canvas.getContext('2d');
     render(html`<div>${canvas}</div>`, this);
     this.#canvas = canvas;
@@ -66,26 +72,70 @@ class JsGrapher extends HTMLElement {
   drawGraph(runner) {
     const {id, values, color, arg, code} = runner;
     this.#ctx.strokeStyle = color;
+    this.#ctx.lineWidth = LINE_WIDTH;
     this.#ctx.beginPath();
   
     const offset = 100 - values.length;
+    const tickDistance = this.cwidth / 100;
     let first = true;
+    let helperHeight = 0;
     for (const [idx, value] of Object.entries(values)) {
-      const x = (+idx+offset) * 4;
+      const x = (+idx+offset) * tickDistance;
       const y =
-        (this.height * 0.05) +
+        (this.cheight * 0.10) +
         (value - this.#min) / (this.#max - this.#min) *
-        (this.height * 0.9);
-      if (y < 0 || y > this.height) {
+        (this.cheight * 0.8);
+      helperHeight = this.cheight - y;
+      if (y < 0 || y > this.cheight) {
         debugger;
       }
       if (first) {
         first = false;
-        this.#ctx.moveTo(x, this.height - y);
+        this.#ctx.moveTo(x, this.cheight - y);
       } else {
-        this.#ctx.lineTo(x, this.height - y);
+        this.#ctx.lineTo(x, this.cheight - y);
       }
     }
+    this.#ctx.stroke();
+    this.#ctx.closePath();
+
+    // draw horizontal bar
+    this.#ctx.strokeStyle = '#8F9A9F';
+    this.#ctx.beginPath();
+    this.#ctx.moveTo(MARKER_WIDTH * DENSITY, this.cheight - MARKER_WIDTH * DENSITY);
+    this.#ctx.lineTo(this.cwidth, this.cheight - MARKER_WIDTH * DENSITY);
+    this.#ctx.stroke();
+    this.#ctx.closePath();
+    
+    // draw vertival line
+    this.#ctx.beginPath();
+    this.#ctx.moveTo(MARKER_WIDTH * DENSITY, 0);
+    this.#ctx.lineTo(MARKER_WIDTH * DENSITY, this.cheight - MARKER_WIDTH * DENSITY);
+    this.#ctx.stroke();
+    this.#ctx.closePath();
+    this.#ctx.lineWidth = LINE_WIDTH / 2;
+
+    for (let i = 0; i < 49; i += 1) {
+      this.#ctx.beginPath();
+      this.#ctx.moveTo(MARKER_WIDTH * DENSITY + (i + 1) * tickDistance * 2, this.cheight - MARKER_WIDTH * DENSITY);
+      this.#ctx.lineTo(MARKER_WIDTH * DENSITY + (i + 1) * tickDistance * 2, this.cheight);
+      this.#ctx.stroke();
+      this.#ctx.closePath();
+    }
+    const vlineHeight = this.cheight - MARKER_WIDTH * DENSITY;
+    const vticks = [vlineHeight * 0.1, vlineHeight / 2, vlineHeight * 0.9];
+
+    for (const tick of vticks) {
+      this.#ctx.beginPath();
+      this.#ctx.moveTo(0, tick);
+      this.#ctx.lineTo(MARKER_WIDTH * DENSITY, tick);
+      this.#ctx.stroke();
+      this.#ctx.closePath();
+    }
+    this.#ctx.lineWidth = LINE_WIDTH / 4;
+    this.#ctx.beginPath();
+    this.#ctx.moveTo(MARKER_WIDTH * DENSITY, helperHeight);
+    this.#ctx.lineTo(this.cwidth, helperHeight);
     this.#ctx.stroke();
     this.#ctx.closePath();
   }
@@ -114,15 +164,22 @@ class JsGrapher extends HTMLElement {
       for (const runner of runners) {
         this.getNewValue(runner);
       }
-      this.#ctx.clearRect(0, 0, this.width, this.height);
+      this.#ctx.clearRect(0, 0, this.cwidth, this.cheight);
       for (const runner of runners) {
         this.drawGraph(runner);
       }
       const args = runners.map(r => this.getArgDom(r));
       const funcs = runners.map(r => this.getFunctionDom(r));
       render(html`
-        <div>
-          ${this.#canvas}
+        <div class="chart">
+          <div class="chart-marks">
+            <p class="chart-mark">${this.#max}</p>
+            <p class="chart-mark">${Math.ceil((this.#max + this.#min)/2)}</p>
+            <p class="chart-mark">${Math.ceil(this.#max * 0.1)}</p>
+          </div>
+          <div>
+            ${this.#canvas}
+          </div>
         </div>
         <h2>Argumentos</h2>
         ${args}

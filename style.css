@@ -1,6 +1,8 @@
 body {
     font-family: 'Montserrat', sans-serif;
     --text-main: #313941;
+    --soft-color: #8F9A9F;
+    margin: 15px;
 }
 
 h2 {
@@ -16,6 +18,36 @@ h2 {
 #graph {
     width: 400;
     height: 200;
+}
+
+.chart {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+canvas {
+    margin-left: 8px;
+}
+
+.chart-marks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 60px;
+    margin-bottom: 5px;
+}
+
+.chart-mark {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-end;
+    margin: 16px 0;
+    font-size: 11px;
+    /* line-height: 20px; */
+    position: relative;
+    top: -0.5ex;
 }
 
 .chart-dot {

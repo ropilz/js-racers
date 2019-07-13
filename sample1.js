@@ -1,8 +1,3 @@
-import {html, render} from 'https://cdn.pika.dev/lit-html/v1';
-import {Runner} from './runner.js';
-import './grapher.js';
-
-/* ***************************************************************** */
 let objects = [
     {a: 0, b: 6},
     {a: 1, b: 6, c: 7},
@@ -30,12 +25,3 @@ document.body.addEventListener('click', () => {
     iteration += 1;
     test2.arg = objects[iteration];
 });
-/* ***************************************************************** */
-
-test.start();
-test2.start();
-
-const target = document.getElementById('canvas2');
-render(html`
-  <js-grapher runner1=${test.id} runner2=${test2.id}></js-grapher>`
-, target);

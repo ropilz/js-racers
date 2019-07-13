@@ -6,7 +6,7 @@ let gid = -1;
 
 export class Runner {
   id = ++gid;
-  times = 1000000;
+  times = 100000000;
   #worker;
   #arg;
   #fn;
@@ -47,6 +47,6 @@ export class Runner {
   getTime () {
     const newValue = Math.max.apply(0, this.results);
     this.results = [];
-    return newValue;
+    return Math.ceil(this.times / newValue);
   }
 }
