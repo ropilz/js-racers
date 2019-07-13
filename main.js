@@ -1,15 +1,23 @@
-import greenlet from 'https://cdn.pika.dev/greenlet/v1';
+import {createWorker} from './worker.js';
 
 
 class Runner {
-    #greenlet;
-    constructor (fn) {
-        this.#greenlet = greenlet(fn);
-    }
+  times = 1000000;
+  #worker;
+  #arg;
 
-    run (args) {
-        return this.#greenlet(args);
-    }
+  constructor (fn, arg) {
+    this.#worker = createWorker(fn);
+    this.#arg = arg;
+  }
+
+  setArg (arg) {
+    this.#arg = arg;
+  }
+
+  run () {
+    return this.#worker(this.#arg, this.times);
+  }
 }
 
 const ctx = document.getElementById('graph').getContext('2d');
@@ -27,31 +35,13 @@ let objects = [
     {a: 9, b: 6, k: 7}
 ];
 
-const test = new Runner((jj) => {
-    function test (obj) {
-        let a = obj.a + obj.b;
-    }
-    const start = performance.now();
-    for (let i = 0; i < 100000000; i += 1) {
-        test(jj);
-    }
-    const end = performance.now();
-    const total = end - start;
-    return total;
-});
+const test = new Runner((obj) => {
+    let a = obj.a + obj.b;
+}, objects[0]);
 
-const test2 = new Runner((jj) => {
-    function test (obj) {
-        let a = obj.a + obj.b;
-    }
-    const start = performance.now();
-    for (let i = 0; i < 100000000; i += 1) {
-        test(jj);
-    }
-    const end = performance.now();
-    const total = end - start;
-    return total;
-});
+const test2 = new Runner((obj) => {
+    let a = obj.a + obj.b;
+}, objects[0]);
 
 
 let results2 = [];
@@ -65,6 +55,7 @@ let iteration = 0
 
 document.body.addEventListener('click', () => {
     iteration += 1;
+    test2.setArg(objects[iteration]);
 });
 
 async function runner1 () {

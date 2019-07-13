@@ -10,7 +10,7 @@ export function createWorker (code) {
       let {params, id, times} = u.data;
       const start = performance.now();
       while (times--) {
-        await $$.apply($$, await params)
+        $$.call($$, params)
       }
       const end = performance.now();
       postMessage({time: end - start, id});
