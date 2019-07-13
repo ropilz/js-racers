@@ -91,9 +91,9 @@ class JsGrapher extends HTMLElement {
       }
       if (first) {
         first = false;
-        this.#ctx.moveTo(x, this.cheight - y);
+        this.#ctx.moveTo(MARKER_WIDTH * DENSITY + x, this.cheight - y);
       } else {
-        this.#ctx.lineTo(x, this.cheight - y);
+        this.#ctx.lineTo(MARKER_WIDTH * DENSITY + x, this.cheight - y);
       }
     }
     this.#ctx.stroke();
@@ -164,7 +164,7 @@ class JsGrapher extends HTMLElement {
       for (const runner of runners) {
         this.getNewValue(runner);
       }
-      this.#ctx.clearRect(0, 0, this.cwidth, this.cheight);
+      this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.width);
       for (const runner of runners) {
         this.drawGraph(runner);
       }

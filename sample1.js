@@ -22,6 +22,6 @@ const test2 = new Runner((obj) => {
 let iteration = 0
 
 document.body.addEventListener('click', () => {
-    iteration += 1;
+    iteration = Math.min(objects.length - 1, iteration + 1);
     test2.arg = objects[iteration];
 });
