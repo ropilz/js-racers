@@ -1,42 +1,6 @@
-import {createWorker} from './worker.js';
-
-
-class Runner {
-  times = 1000000;
-  #worker;
-  #arg;
-
-  results = [];
-  values = new Array(100).fill(0);
-
-  constructor (fn, arg) {
-    this.#worker = createWorker(fn);
-    this.#arg = arg;
-  }
-
-  setArg (arg) {
-    this.#arg = arg;
-  }
-
-  run () {
-    return this.#worker(this.#arg, this.times);
-  }
-
-  async start () {
-    while (true) {
-        const total = await this.run(objects[0]);
-        this.results.push(total);
-    }
-  }
-
-  getTime () {
-    const newValue = Math.max.apply(0, this.results);
-    this.results = [];
-    return newValue;
-  }
-}
-
-const ctx = document.getElementById('graph').getContext('2d');
+import {html, render} from 'https://cdn.pika.dev/lit-html/v1';
+import {Runner} from './runner.js';
+import './grapher.js';
 
 let objects = [
     {a: 0, b: 6},
@@ -54,10 +18,12 @@ let objects = [
 const test = new Runner((obj) => {
     let a = obj.a + obj.b;
 }, objects[0]);
+test.color = 'red';
 
 const test2 = new Runner((obj) => {
     let a = obj.a + obj.b;
 }, objects[0]);
+test2.color = 'green';
 
 let iteration = 0
 
@@ -69,39 +35,7 @@ document.body.addEventListener('click', () => {
 test.start();
 test2.start();
 
-let max = 0;
-
-setInterval(() => {
-    const newValue = test.getTime();
-    const newValue2 = test2.getTime();
-    if (newValue > max) { max = newValue; }
-    if (newValue2 > max) { max = newValue2; }
-    test.values.shift();
-    test.values.push(newValue);
-
-    test2.values.shift();
-    test2.values.push(newValue2);
-    ctx.clearRect(0, 0, 400, 100);
-    const r = Math.floor(Math.random() * 255);
-    const g = Math.floor(Math.random() * 255);
-    const b = Math.floor(Math.random() * 255);
-    // ctx.fillStyle = `rgb(${r},${g},${b})`;
-    ctx.strokeStyle = `red`;
-    ctx.beginPath();
-    ctx.moveTo(0, 100 - test.values[0]);
-    for (const [idx, value] of Object.entries(test.values)) {
-        ctx.lineTo(idx * 4, 100 - (value / max) * 100);
-    }
-    ctx.stroke();
-    ctx.closePath();
-
-
-    ctx.strokeStyle = `green`;
-    ctx.beginPath();
-    ctx.moveTo(0, 100 - test2.values[0]);
-    for (const [idx, value] of Object.entries(test2.values)) {
-        ctx.lineTo(idx * 4, 100 - (value / max) * 100);
-    }
-    ctx.stroke();
-    ctx.closePath();
-}, 500);
+const target = document.getElementById('canvas2');
+render(html`
+  <js-grapher runner1=${test.id} runner2=${test2.id}></js-grapher>`
+, target);

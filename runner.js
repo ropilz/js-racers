@@ -3,55 +3,40 @@ export const runnerPool = {};
 
 let gid = -1;
 
+
 export class Runner {
-  static runCount = 10000000;
-
-  #args = [];
-  #cache = [];
-  #runner;
-  #running = false;
   id = ++gid;
+  times = 1000000;
+  #worker;
+  #arg;
 
-  constructor (test, ...args) {
-    this.#args = args;
-    this.#runner = createWorker(test);
+  results = [];
+  values = new Array(100).fill(0);
+
+  constructor (fn, arg) {
+    this.#worker = createWorker(fn);
+    this.#arg = arg;
     runnerPool[this.id] = this;
   }
 
+  setArg (arg) {
+    this.#arg = arg;
+  }
+
+  run () {
+    return this.#worker(this.#arg, this.times);
+  }
+
   async start () {
-    this.#running = true;
-    while (this.#running) {
-      await this.run();
+    while (true) {
+      const total = await this.run();
+      this.results.push(total);
     }
   }
 
-  stop () {
-    this.#running = false;
-  }
-
-  updateArgs (...args) {
-    this.#args = args;
-  }
-
-  restartCache () {
-    this.#cache = [];
-  }
-
   getTime () {
-    const maxTime = Math.max.apply(0, [0, ...this.#cache]);
-    return maxTime;
-  }
-
-  getOps () {
-    let totalTime = 0;
-    for (const val of this.#cache) { totalTime += val; }
-    const totalOps = this.#cache.length * Runner.runCount;
-    return totalOps / (totalTime);
-  }
-
-  async run () {
-    if (!this.#runner) { return; }
-    const time = await this.#runner(this.#args, Runner.runCount);
-    this.#cache.push(time);
+    const newValue = Math.max.apply(0, this.results);
+    this.results = [];
+    return newValue;
   }
 }

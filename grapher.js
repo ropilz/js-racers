@@ -20,8 +20,8 @@ class JsGrapher extends HTMLElement {
   }
 
   getNewValue(runner) {
-    const ops = runner.getOps();
-    runner.restartCache();
+    const ops = runner.getTime();
+    // runner.restartCache();
     if (ops > this.#max) { this.#max = ops; }
     if (ops < this.#min) { this.#min = ops; }
     if (runner.values.length == 100) {
@@ -40,9 +40,9 @@ class JsGrapher extends HTMLElement {
     for (const [idx, value] of Object.entries(values)) {
       const x = (+idx+offset) * 4;
       const y =
-        (this.height * 0.1) +
+        (this.height * 0.05) +
         (value - this.#min) / (this.#max - this.#min) *
-        (this.height * 0.8);
+        (this.height * 0.9);
       if (y < 0 || y > this.height) {
         debugger;
       }
