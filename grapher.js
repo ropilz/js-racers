@@ -92,7 +92,7 @@ class JsGrapher extends HTMLElement {
 
   getRunners () {
     const runners = [];
-    const colors = ['red', 'blue', 'green'];
+    const colors = ['#845BC9', '#5AC5DB', '#A72921', ];
     for (const idx of [1,2,3]) {
       const fn = this.getAttribute(`runner${idx}`);
       if (fn) {
@@ -120,12 +120,13 @@ class JsGrapher extends HTMLElement {
       }
       const args = runners.map(r => this.getArgDom(r));
       const funcs = runners.map(r => this.getFunctionDom(r));
-      console.log('ARGS', runners, args);
       render(html`
         <div>
           ${this.#canvas}
         </div>
+        <h2>Argumentos</h2>
         ${args}
+        <h2>Código</h2>
         ${funcs}
       `, this);
       

@@ -1,3 +1,18 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    --text-main: #313941;
+}
+
+h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 15px;
+    border-bottom: 2px solid var(--text-main);
+    display: inline-block;
+    padding-right: 28px;
+    margin-bottom: 10px;
+}
+
 #graph {
     width: 400;
     height: 200;
@@ -7,6 +22,7 @@
     width: 10px;
     height: 10px;
     border-radius: 5px;
+    margin-right: 5px;
 }
 
 .chart-code-liner {
