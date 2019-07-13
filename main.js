@@ -6,6 +6,9 @@ class Runner {
   #worker;
   #arg;
 
+  results = [];
+  values = new Array(100).fill(0);
+
   constructor (fn, arg) {
     this.#worker = createWorker(fn);
     this.#arg = arg;
@@ -17,6 +20,19 @@ class Runner {
 
   run () {
     return this.#worker(this.#arg, this.times);
+  }
+
+  async start () {
+    while (true) {
+        const total = await this.run(objects[0]);
+        this.results.push(total);
+    }
+  }
+
+  getTime () {
+    const newValue = Math.max.apply(0, this.results);
+    this.results = [];
+    return newValue;
   }
 }
 
@@ -43,14 +59,6 @@ const test2 = new Runner((obj) => {
     let a = obj.a + obj.b;
 }, objects[0]);
 
-
-let results2 = [];
-
-let results = [];
-
-const values = new Array(100).fill(0);
-const values2 = new Array(100).fill(0);
-
 let iteration = 0
 
 document.body.addEventListener('click', () => {
@@ -58,45 +66,21 @@ document.body.addEventListener('click', () => {
     test2.setArg(objects[iteration]);
 });
 
-async function runner1 () {
-    let max = 0;
-    while (true) {
-        const total = await test.run(objects[0]);
-        results.push(total);
-        if (total > max) {
-            max = total;
-        }
-    }
-}
-
-async function runner2 () {
-    let max = 0;
-    while (true) {
-        const total = await test2.run(objects[iteration]);
-        results2.push(total);
-        if (total > max) {
-            max = total;
-        }
-    }
-}
-
-runner1();
-runner2();
+test.start();
+test2.start();
 
 let max = 0;
 
 setInterval(() => {
-    const newValue = Math.max.apply(0, results);
-    const newValue2 = Math.max.apply(0, results2);
+    const newValue = test.getTime();
+    const newValue2 = test2.getTime();
     if (newValue > max) { max = newValue; }
     if (newValue2 > max) { max = newValue2; }
-    results = [];
-    results2 = [];
-    values.shift();
-    values.push(newValue);
+    test.values.shift();
+    test.values.push(newValue);
 
-    values2.shift();
-    values2.push(newValue2);
+    test2.values.shift();
+    test2.values.push(newValue2);
     ctx.clearRect(0, 0, 400, 100);
     const r = Math.floor(Math.random() * 255);
     const g = Math.floor(Math.random() * 255);
@@ -104,8 +88,8 @@ setInterval(() => {
     // ctx.fillStyle = `rgb(${r},${g},${b})`;
     ctx.strokeStyle = `red`;
     ctx.beginPath();
-    ctx.moveTo(0, 100 - values[0]);
-    for (const [idx, value] of Object.entries(values)) {
+    ctx.moveTo(0, 100 - test.values[0]);
+    for (const [idx, value] of Object.entries(test.values)) {
         ctx.lineTo(idx * 4, 100 - (value / max) * 100);
     }
     ctx.stroke();
@@ -114,8 +98,8 @@ setInterval(() => {
 
     ctx.strokeStyle = `green`;
     ctx.beginPath();
-    ctx.moveTo(0, 100 - values2[0]);
-    for (const [idx, value] of Object.entries(values2)) {
+    ctx.moveTo(0, 100 - test2.values[0]);
+    for (const [idx, value] of Object.entries(test2.values)) {
         ctx.lineTo(idx * 4, 100 - (value / max) * 100);
     }
     ctx.stroke();
