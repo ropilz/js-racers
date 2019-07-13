@@ -17,11 +17,13 @@ let objects = [
 
 const test = new Runner((obj) => {
     let a = obj.a + obj.b;
+    let b = a + 5;
 }, objects[0]);
 test.color = 'red';
 
 const test2 = new Runner((obj) => {
     let a = obj.a + obj.b;
+    let b = a + 5;
 }, objects[0]);
 test2.color = 'green';
 
@@ -29,7 +31,7 @@ let iteration = 0
 
 document.body.addEventListener('click', () => {
     iteration += 1;
-    test2.setArg(objects[iteration]);
+    test2.arg = objects[iteration];
 });
 
 test.start();

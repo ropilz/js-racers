@@ -1,5 +1,7 @@
 import {html, render} from 'https://cdn.pika.dev/lit-html/v1';
 import {runnerPool} from './runner.js';
+// import highlight from 'https://cdn.pika.dev/h.js/v4';
+import {highlight} from 'https://cdn.pika.dev/reprism/v0.0';
 
 class JsGrapher extends HTMLElement {
   width = 400;
@@ -8,6 +10,10 @@ class JsGrapher extends HTMLElement {
   #min = 0;
   #ctx = null;
   #intervalHandle;
+  #canvas;
+  #argsDomMap = new Map();
+  #functionDomMap = new Map();
+
   static get observedAttributes() { return ['arg1', 'arg2', 'arg3']; }
 
   constructor () {
@@ -17,6 +23,7 @@ class JsGrapher extends HTMLElement {
     canvas.height = this.height;
     this.#ctx = canvas.getContext('2d');
     render(html`<div>${canvas}</div>`, this);
+    this.#canvas = canvas;
   }
 
   getNewValue(runner) {
@@ -30,8 +37,34 @@ class JsGrapher extends HTMLElement {
     runner.values.push(ops);
   }
 
+  getArgDom ({arg, color}) {
+    // const map = this.#argsDomMap;
+    // if (!map.has(arg)) {
+      const container = document.createElement('div');
+      container.innerHTML = highlight(JSON.stringify(arg), 'js');
+
+      return html`
+        <div class="chart-code-liner">
+          <div class="chart-dot" style="background-color: ${color}"></div>
+          ${container}
+        </div>
+      `;
+    // }
+    // return map.get(arg);
+  }
+
+  getFunctionDom ({code}) {
+    const map = this.#functionDomMap;
+    if (!map.has(code)) {
+      const container = document.createElement('div');
+      container.innerHTML = highlight(code, 'js');
+      map.set(code, container);
+    }
+    return map.get(code);
+  }
+
   drawGraph(runner) {
-    const {id, values, color} = runner;
+    const {id, values, color, arg, code} = runner;
     this.#ctx.strokeStyle = color;
     this.#ctx.beginPath();
   
@@ -85,6 +118,16 @@ class JsGrapher extends HTMLElement {
       for (const runner of runners) {
         this.drawGraph(runner);
       }
+      const args = runners.map(r => this.getArgDom(r));
+      const funcs = runners.map(r => this.getFunctionDom(r));
+      console.log('ARGS', runners, args);
+      render(html`
+        <div>
+          ${this.#canvas}
+        </div>
+        ${args}
+        ${funcs}
+      `, this);
       
     }, 1000);
   }

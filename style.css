@@ -1,4 +1,17 @@
 #graph {
     width: 400;
-    height: 100;
+    height: 200;
+}
+
+.chart-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+
+.chart-code-liner {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
 }

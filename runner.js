@@ -9,18 +9,28 @@ export class Runner {
   times = 1000000;
   #worker;
   #arg;
+  #fn;
 
   results = [];
   values = new Array(100).fill(0);
 
   constructor (fn, arg) {
+    this.#fn = fn;
     this.#worker = createWorker(fn);
     this.#arg = arg;
     runnerPool[this.id] = this;
   }
 
-  setArg (arg) {
+  set arg (arg) {
     this.#arg = arg;
+  }
+
+  get arg () {
+    return this.#arg;
+  }
+
+  get code () {
+    return `${this.#fn}`;
   }
 
   run () {
